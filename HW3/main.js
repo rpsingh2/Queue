@@ -76,7 +76,7 @@ app.get('/get', function(req, res) {
 
 
 app.get('/recent', function(req, res) {
-    client.lrange("recenturl", 0, 9, function(err, urls) {
+    client.lrange("recenturl", 0, 4, function(err, urls) {
         res.send(urls);
     });
 });
