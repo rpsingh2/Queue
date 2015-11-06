@@ -3,7 +3,8 @@ Cache, Proxies, Queues
 
 ### Setup
 
-* Clone this repo, run `npm install`.
+* Clone [this repo](https://github.com/CSC-DevOps/Queues.git).
+* run `npm install`.
 * Install redis and run on localhost:6379
 
 ### A simple web server
@@ -41,24 +42,36 @@ In general, you can run all the redis commands in the following manner: client.C
 Create two routes, `/get` and `/set`.
 
 When `/set` is visited, set a new key, with the value:
-> "this message will self-destruct in 10 seconds".
+When `/get` is visited, fetch that key, and send value back to the client: 
 
-Use the expire command to make sure this key will expire in 10 seconds.
+    app.get('/set', function(req, res)
+    {
+    client.set("newkey", "this message will self-destruct in 10 seconds")
+    client.expire("newkey", 10)
+    res.send("New Key has been set.")
+    })
 
-When `/get` is visited, fetch that key, and send value back to the client: `res.send(value)` 
+
+    app.get('/get', function(req, res) 
+    {
+        client.get("newkey", function(err, value)
+         {
+             res.send(value)
+         });
+    })
 
 
 ### Recent visited sites
 
 Create a new route, `/recent`, which will display the most recently visited sites.
 
-There is already a global hook setup, which will allow you to see each site that is requested:
-
-	app.use(function(req, res, next) 
-	{
-	...
-
-Use the lpush, ltrim, and lrange redis commands to store the most recent 5 sites visited, and return that to the client.
+    app.get('/recent', function(req, res) 
+    {
+     client.lrange("recenturl", 0, 4, function(err, urls) 
+     {
+     res.send(urls);
+     });
+    });
 
 ### Cat picture uploads: queue
 
@@ -75,5 +88,6 @@ Have `upload` store the images in a queue.  Have `meow` display the most recent 
 ### Proxy server
 
 Bonus: How might you use redis and express to introduce a proxy server?
-
 See [rpoplpush](http://redis.io/commands/rpoplpush)
+
+## [Screencast Link](https://www.youtube.com/watch?v=67CjheQHxKU)
